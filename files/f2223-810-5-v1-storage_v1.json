@@ -1,0 +1,182 @@
+[
+  {
+    "_id": 1,
+    "from": "user05",
+    "to": [ "head05", "head06", "head07" ],
+    "value": [ 11, 22, 27 ]
+  },
+  {
+    "_id": 2,
+    "from": "user02",
+    "to": [ "audit02", "head03", "audit04" ],
+    "value": [ 15, 29, 21 ]
+  },
+  {
+    "_id": 3,
+    "from": "user05",
+    "to": [ "audit05" ],
+    "value": [ 21 ]
+  },
+  {
+    "_id": 4,
+    "from": "user08",
+    "to": [ "audit08", "audit09", "head10", "head01" ],
+    "value": [ 24, 30, 23, 21 ]
+  },
+  {
+    "_id": 5,
+    "from": "user10",
+    "to": [ "head10", "audit01" ],
+    "value": [ 19, 23 ]
+  },
+  {
+    "_id": 6,
+    "from": "user09",
+    "to": [ "head09", "audit10" ],
+    "value": [ 15, 18 ]
+  },
+  {
+    "_id": 7,
+    "from": "user07",
+    "to": [ "head07", "head08", "user09" ],
+    "value": [ 17, 23, 16 ]
+  },
+  {
+    "_id": 8,
+    "from": "user06",
+    "to": [ "audit06", "audit07", "user08" ],
+    "value": [ 20, 22, 13 ]
+  },
+  {
+    "_id": 9,
+    "from": "user01",
+    "to": [ "head01" ],
+    "value": [ 17 ]
+  },
+  {
+    "_id": 10,
+    "from": "user03",
+    "to": [ "audit03", "head04", "head05" ],
+    "value": [ 28, 13, 25 ]
+  },
+  {
+    "_id": 11,
+    "from": "user04",
+    "to": [ "head04", "audit05", "user06", "audit07" ],
+    "value": [ 25, 30, 23, 13 ]
+  },
+  {
+    "_id": 12,
+    "from": "user08",
+    "to": [ "audit08", "audit09" ],
+    "value": [ 19, 14 ]
+  },
+  {
+    "_id": 13,
+    "from": "user01",
+    "to": [ "head01", "head02" ],
+    "value": [ 11, 21 ]
+  },
+  {
+    "_id": 14,
+    "from": "user04",
+    "to": [ "head04" ],
+    "value": [ 14 ]
+  },
+  {
+    "_id": 15,
+    "from": "user03",
+    "to": [ "head03", "audit04", "user05", "head06" ],
+    "value": [ 14, 11, 17, 23 ]
+  },
+  {
+    "_id": 16,
+    "from": "user10",
+    "to": [ "head10" ],
+    "value": [ 26 ]
+  },
+  {
+    "_id": 17,
+    "from": "user06",
+    "to": [ "audit06", "head07", "user08", "audit09" ],
+    "value": [ 25, 16, 23, 16 ]
+  },
+  {
+    "_id": 18,
+    "from": "user10",
+    "to": [ "head10", "user01", "audit02" ],
+    "value": [ 27, 18, 26 ]
+  },
+  {
+    "_id": 19,
+    "from": "user01",
+    "to": [ "head01", "user02", "audit03", "head04" ],
+    "value": [ 18, 22, 19, 23 ]
+  },
+  {
+    "_id": 20,
+    "from": "user02",
+    "to": [ "audit02", "audit03", "user04" ],
+    "value": [ 27, 30, 11 ]
+  },
+  {
+    "_id": 21,
+    "from": "user09",
+    "to": [ "head09", "user10", "audit01" ],
+    "value": [ 13, 21, 12 ]
+  },
+  {
+    "_id": 22,
+    "from": "user08",
+    "to": [ "head08" ],
+    "value": [ 23 ]
+  },
+  {
+    "_id": 23,
+    "from": "user03",
+    "to": [ "audit03", "head04", "audit05" ],
+    "value": [ 18, 13, 17 ]
+  },
+  {
+    "_id": 24,
+    "from": "user05",
+    "to": [ "head05", "audit06", "user07" ],
+    "value": [ 24, 18, 19 ]
+  },
+  {
+    "_id": 25,
+    "from": "user04",
+    "to": [ "audit04", "user05", "user06", "user07" ],
+    "value": [ 19, 22, 22, 20 ]
+  },
+  {
+    "_id": 26,
+    "from": "user07",
+    "to": [ "head07", "audit08", "audit09", "user10" ],
+    "value": [ 29, 16, 12, 30 ]
+  },
+  {
+    "_id": 27,
+    "from": "user07",
+    "to": [ "audit07", "audit08", "audit09" ],
+    "value": [ 13, 17, 25 ]
+  },
+  {
+    "_id": 28,
+    "from": "user06",
+    "to": [ "audit06", "head07", "user08" ],
+    "value": [ 25, 28, 17 ]
+  },
+  {
+    "_id": 29,
+    "from": "user02",
+    "to": [ "audit02", "user03", "head04" ],
+    "value": [ 27, 30, 30 ]
+  },
+  {
+    "_id": 30,
+    "from": "user09",
+    "to": [ "head09", "audit10", "user01" ],
+    "value": [ 16, 26, 12 ]
+  }
+]
