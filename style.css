@@ -110,3 +110,7 @@ textarea { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(
   .trow > :nth-child(2) { display: none; }
   .mockbar { top: 92px; }
 }
+.pyref-box { margin: 10px 0; }
+.pyref-box > summary { padding: 4px 0; }
+table.pyref th { text-align: left; background: var(--accent-weak); }
+table.pyref td:first-child { white-space: nowrap; }

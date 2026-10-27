@@ -185,6 +185,7 @@
     app().innerHTML = `<p class="crumbs"><a href="#/">Главная</a> › ${T.title}</p><h1>${T.title}</h1><p class="muted">${T.short}</p>
       <div class="bar wide"><i style="width:${p.pct}%"></i></div>
       <details class="card theory" ${S.theory[tid] ? "" : "open"}><summary><h2>1. Теория ${S.theory[tid] ? "✓" : ""}</h2></summary>${T.theory}
+      <details class="pyref-box"><summary><b>Функции Python для этой темы</b></summary>${pyRef(tid)}</details>
       ${S.theory[tid] ? "" : `<button class="btn" id="read">Прочитал(а), понятно → к тренировке</button>`}</details>
       <div class="card"><h2>2. Тренировка (задачи генерируются заново, их бесконечно много)</h2>${gens.map((g) => { const x = gs(g.id); return `<a class="trow" href="#/gen/${g.id}"><span>${g.title}</span><span class="muted">решено: ${x.ok}${x.shown ? ` · с решением: ${x.shown}` : ""}</span><span>${x.ok ? chip("solved") : chip("new")}</span></a>`; }).join("")}</div>
       <div class="card"><h2>3. Задачи олимпиады (${p.cDone}/${p.cTotal})</h2>${core.map(taskRow).join("") || '<p class="muted">Нет задач</p>'}</div>
@@ -470,6 +471,7 @@ from itertools import product, permutations
 from collections import Counter
 open('f.txt', encoding='utf-8').read().splitlines()
 import math; math.ceil(x), math.floor(x)</code></pre></div>
+      <div class="card"><h2>Функции Python по темам</h2><p class="muted">Всё, что встречается в решениях задач тренажёра. Справа — пример и что он выведет.</p>${TOPICS.map((T) => `<details class="pyref-box"><summary><b>${T.title}</b></summary>${pyRef(T.id)}</details>`).join("")}</div>
       <div class="card">${window.STRATEGY}</div>`;
   }
 
