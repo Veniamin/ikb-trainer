@@ -11,6 +11,7 @@
   const TOPIC = Object.fromEntries(TOPICS.map((t) => [t.id, t]));
   const GENS = window.GENERATORS;
   const GEN = Object.fromEntries(GENS.map((g) => [g.id, g]));
+  const LESSONS = window.LESSONS || {};
 
   const DAYS = [
     { n: 1, topics: ["ascii", "hash"], note: "Коды символов и хеши — основа почти всех задач" },
@@ -25,7 +26,7 @@
 
   // ───────────── состояние ─────────────
   const KEY = "ikb-trainer-v1";
-  const blank = () => ({ v: 1, created: Date.now(), theory: {}, tasks: {}, gens: {}, genLog: [], mocks: {}, days: {} });
+  const blank = () => ({ v: 1, created: Date.now(), theory: {}, tasks: {}, gens: {}, genLog: [], mocks: {}, days: {}, lessons: {} });
   let S;
   try { S = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) { S = blank(); }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* приватный режим */ } };
@@ -78,6 +79,12 @@
   const isDone = (id) => ["solved", "helped", "shown"].includes(ts(id).st);
   const chip = (st) => `<span class="chip ${STATUS[st][0]}">${STATUS[st][1]}</span>`;
 
+  // ───────────── видеоуроки ─────────────
+  const ls = (id) => (S.lessons[id] = S.lessons[id] || { done: {}, ch: 0 });
+  const lessonOf = (tid) => Object.values(LESSONS).find((l) => l.topic === tid);
+  const lessonCount = (l) => l.chapters.filter((c) => ls(l.id).done[c.id]).length;
+  const lessonDone = (l) => lessonCount(l) === l.chapters.length;
+
   // ───────────── прогресс по темам ─────────────
   const topicGens = (tid) => GENS.filter((g) => g.topic === tid);
   const coreTasks = (tid) => TASKS.filter((t) => t.topic === tid && t.core);
@@ -107,6 +114,8 @@
   function nextStep() {
     for (const day of DAYS) {
       for (const tid of day.topics) {
+        const l = lessonOf(tid);
+        if (l && !lessonDone(l)) return { day, href: `#/lesson/${l.id}`, label: `Видеоурок «${l.title}» (глав пройдено ${lessonCount(l)} из ${l.chapters.length})` };
         if (!S.theory[tid]) return { day, href: `#/topic/${tid}`, label: `Прочитать теорию: «${TOPIC[tid].title}»` };
         const g = topicGens(tid).find((x) => gs(x.id).ok === 0);
         if (g) return { day, href: `#/gen/${g.id}`, label: `Тренировка: «${g.title}»` };
@@ -129,13 +138,16 @@
 
   // ───────────── рендер ─────────────
   const app = () => $("#app");
+  let player = null;
   function render() {
     activeKey = null;
+    if (player) { player.destroy(); player = null; }
     const h = location.hash.replace(/^#\/?/, "").split("/");
     const [page, arg] = h;
     window.scrollTo(0, 0);
     try {
       if (page === "topic" && TOPIC[arg]) return viewTopic(arg);
+      if (page === "lesson" && LESSONS[arg]) return viewLesson(arg);
       if (page === "task" && TASK[arg]) return viewTask(arg);
       if (page === "gen" && GEN[arg]) return viewGen(arg);
       if (page === "mock") return arg ? viewMock(arg) : viewMocks();
@@ -161,6 +173,7 @@
       <p>${days > 0 ? `До начала отборочного этапа — <b>${days} дн.</b> (9 ноября 2026 – 8 февраля 2027)` : "Отборочный этап идёт: 9 ноября 2026 – 8 февраля 2027"}</p></div>
       <a class="btn big" href="${nx.href}">▶ Продолжить<small>${esc(nx.label)}</small></a>
     </section>
+    ${Object.values(LESSONS).filter((l) => !lessonDone(l)).map((l) => lessonCard(l.topic)).join("")}
     <div class="stats"><div><b>${solved}</b><span>задач олимпиады</span></div><div><b>${genOk}</b><span>тренировочных</span></div><div><b>${fmtMin(totalMs)}</b><span>занимался всего</span></div><div><b>${fmtMin(S.days[today()] || 0)}</b><span>сегодня</span></div></div>
     <h2>План на неделю</h2><div class="days">`;
     for (const d of DAYS) {
@@ -184,6 +197,7 @@
     const gens = topicGens(tid), core = coreTasks(tid).sort((a, b) => a.prio - b.prio), extra = extraTasks(tid).sort((a, b) => a.prio - b.prio);
     app().innerHTML = `<p class="crumbs"><a href="#/">Главная</a> › ${T.title}</p><h1>${T.title}</h1><p class="muted">${T.short}</p>
       <div class="bar wide"><i style="width:${p.pct}%"></i></div>
+      ${lessonCard(tid)}
       <details class="card theory" ${S.theory[tid] ? "" : "open"}><summary><h2>1. Теория ${S.theory[tid] ? "✓" : ""}</h2></summary>${T.theory}
       <details class="pyref-box"><summary><b>Функции Python для этой темы</b></summary>${pyRef(tid)}</details>
       ${S.theory[tid] ? "" : `<button class="btn" id="read">Прочитал(а), понятно → к тренировке</button>`}</details>
@@ -192,6 +206,25 @@
       ${extra.length ? `<details class="card"><summary><h2>Дополнительно: вторые варианты, старые годы, 11 класс (${extra.length})</h2></summary>${extra.map(taskRow).join("")}</details>` : ""}`;
     const b = $("#read");
     if (b) b.onclick = () => { S.theory[tid] = Date.now(); save(); location.hash = nextStep().href; };
+  }
+
+  function lessonCard(tid) {
+    const l = lessonOf(tid);
+    if (!l) return "";
+    const n = lessonCount(l);
+    return `<a class="card trow lessonlink" href="#/lesson/${l.id}"><span><b>🎬 Видеоурок: ${l.title}</b><br><span class="muted">${l.short}</span></span><span></span><span>${n === l.chapters.length ? chip("solved") : `<span class="chip">глав ${n}/${l.chapters.length}</span>`}</span></a>`;
+  }
+
+  function viewLesson(id) {
+    const l = LESSONS[id], T = TOPIC[l.topic];
+    app().innerHTML = `<p class="crumbs"><a href="#/">Главная</a> › <a href="#/topic/${l.topic}">${T.title}</a> › видеоурок</p>
+      <h1>🎬 ${l.title}</h1><p class="muted">Смотри главу, потом решай упражнения под видео. Пробел — пауза, стрелки — предыдущая/следующая фраза. Нажми на полоску, чтобы перейти к любой фразе.</p><div id="lesson"></div>`;
+    activeKey = "lesson:" + id;
+    player = window.LessonPlayer.mount($("#lesson"), l, {
+      progress: ls(id), base: "",
+      save: () => save(),
+      finish: () => `<a class="btn" href="#/topic/${l.topic}">Урок пройден! К задачам темы «${T.title}» →</a>`,
+    });
   }
 
   // общий блок «ответ + подсказки + решение»
@@ -488,6 +521,7 @@ import math; math.ceil(x), math.floor(x)</code></pre></div>
       const own = c.filter((t) => ts(t.id).st === "solved").length, help = c.filter((t) => ts(t.id).st === "helped").length, shown = c.filter((t) => ts(t.id).st === "shown").length;
       lines.push(`${T.title}: ${p.pct}% · задачи ${p.cDone}/${p.cTotal} (сам ${own}, с подсказкой ${help}, по решению ${shown}) · тренировка ${p.gDone}/${p.gTotal} типов`);
     }
+    for (const l of Object.values(LESSONS)) lines.push(`Видеоурок «${l.title}»: глав ${lessonCount(l)}/${l.chapters.length}`);
     lines.push("");
     for (const m of MOCKS) { const st = S.mocks[m.id]; if (st) lines.push(`${m.title}: ${st.done ? `${st.score}/${m.tasks.length} за ${fmtMin(st.end - st.start)}` : "идёт"}`); }
     lines.push(`На повтор (смотрел решение): ${redoQueue(null).length}`);
@@ -500,6 +534,7 @@ import math; math.ceil(x), math.floor(x)</code></pre></div>
       <div class="card"><h2>Время занятий по дням</h2>${days.map(([d, ms]) => `<div class="trow"><span>${new Date(d).toLocaleDateString("ru", { weekday: "short", day: "numeric", month: "short" })}</span><span class="bar"><i style="width:${(100 * ms) / maxd}%"></i></span><span class="muted">${fmtMin(ms)}</span></div>`).join("") || '<p class="muted">Пока нет данных</p>'}</div>
       <div class="card"><h2>По темам</h2><table class="mini wide"><tr><th>Тема</th><th>Прогресс</th><th>Сам</th><th>С подсказкой</th><th>По решению</th><th>Ошибок</th></tr>
       ${TOPICS.map((T) => { const p = topicProgress(T.id), c = coreTasks(T.id); const cnt = (x) => c.filter((t) => ts(t.id).st === x).length; const err = c.reduce((a, t) => a + ts(t.id).tries, 0); return `<tr><td><a href="#/topic/${T.id}">${T.title}</a></td><td>${p.pct}%</td><td>${cnt("solved")}</td><td>${cnt("helped")}</td><td>${cnt("shown")}</td><td>${err}</td></tr>`; }).join("")}</table></div>
+      ${Object.values(LESSONS).map((l) => `<div class="card"><h2>Видеоурок «${l.title}»</h2><p>Глав пройдено (с упражнениями): <b>${lessonCount(l)} из ${l.chapters.length}</b></p></div>`).join("")}
       <div class="card"><h2>Пробные туры</h2>${MOCKS.map((m) => { const st = S.mocks[m.id]; return `<div class="trow"><span>${m.title}</span><span></span><span>${st ? (st.done ? `<b>${st.score}/${m.tasks.length}</b>` : "идёт") : "—"}</span></div>`; }).join("")}</div>
       <div class="card"><h2>Поделиться</h2><p>Ребёнок может нажать кнопку и отправить отчёт вам в мессенджер.</p><pre id="rep">${esc(reportText())}</pre>
       <button class="btn" id="cp">Скопировать отчёт</button> <button class="btn ghost" id="exp">Скачать резервную копию прогресса</button> <label class="btn ghost">Загрузить копию<input type="file" id="imp" accept=".json" hidden></label> <span id="msg" class="muted"></span></div>`;
